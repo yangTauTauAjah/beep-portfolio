@@ -323,8 +323,16 @@ const about = {
             name: "Cursor AI"
           },
           {
+            logo: "/images/png/Solidity_Logo.png",
+            name: "Solidity"
+          },
+          {
             logo: "/images/png/Next_Logo.png",
             name: "Next JS"
+          },
+          {
+            logo: "/images/logo/Nuxt_Logo.svg",
+            name: "Nuxt JS"
           },
           {
             logo: "/images/png/Vscode_Logo.png",
