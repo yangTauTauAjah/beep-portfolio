@@ -11,7 +11,7 @@ const person = {
   role: "Typescript Developer",
   avatar: "/images/avatar.jpg",
   email: "ans54bit@gmail.com",
-  location: "Indonesia", // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
+  location: "Asia/Jakarta", // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
   languages: ["English (Business)", "Indonesian (Native)", "Japanese (Basic)"], // optional: Leave the array empty if you don't want to display languages
 };
 
