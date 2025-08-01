@@ -1,6 +1,6 @@
 import { Logo } from "@once-ui-system/core";
 
-export const CV_LINK = "https://drive.google.com/file/d/1bxVSTF1Q6blXpaf0kno8_riQxm88jE_H/view?usp=sharing";
+export const CV_LINK = "https://drive.google.com/file/d/14UTrjD24-yHlyZpSGMzPwEluTvtlQKPk/view?usp=sharing";
 
 const person = {
   firstName: "Habib",
