@@ -138,7 +138,7 @@ export default async function RootLayout({
               color: effects.lines.color,
             }}
           />
-          <Flex fillWidth minHeight="16" /* hide="s" *//>
+          <Flex fillWidth minHeight="16" hide={false} s={{hide: true}} /* hide="s" *//>
             <Header />
             <Flex
               zIndex={0}

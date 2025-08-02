@@ -32,7 +32,8 @@ export function Posts({
         <>
             {displayedBlogs.length > 0 && (
                 <Grid
-                    columns={columns} /* mobileColumns="1" */
+                    columns={columns}
+                    m={{columns: "1"}} /* mobileColumns="1" */
                     fillWidth marginBottom="40" gap="12">
                     {displayedBlogs.map((post) => (
                         <Post

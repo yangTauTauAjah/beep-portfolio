@@ -45,6 +45,8 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ structure, about }) =
       position="fixed"
       paddingLeft="24"
       gap="32"
+      hide={false}
+      m={{hide: true}}
       /* hide="m" */
     >
       {structure
@@ -65,6 +67,8 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ structure, about }) =
               <>
                 {section.items.map((item, itemIndex) => (
                   <Flex
+                    hide={false}
+                    l={{hide: true}}
                     /* hide="l" */
                     key={itemIndex}
                     style={{ cursor: "pointer" }}
