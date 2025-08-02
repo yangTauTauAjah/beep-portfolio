@@ -52,7 +52,7 @@ const social = [
   {
     name: "Discord",
     icon: "discord",
-    link: "https://discord.gg/habibanwash1447",
+    link: "https://discord.com/users/habibanwash1447",
   },
   {
     name: "Instagram",
@@ -62,7 +62,7 @@ const social = [
   {
     name: "Youtube",
     icon: "youtube",
-    link: "https://www.youtube.com/@habib_anwash",
+    link: "https://www.youtube.com/@habibanwash4031",
   },
 ];
 
@@ -100,7 +100,7 @@ const about = {
   description: `Meet ${person.name}, ${person.role} from ${person.location}`,
   tableOfContent: {
     display: true,
-    subItems: false,
+    subItems: true,
   },
   avatar: {
     display: true,
