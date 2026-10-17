@@ -1,0 +1,5 @@
+.card {
+    :global(img) {
+        object-fit: contain !important;
+    }
+}

@@ -151,7 +151,7 @@ const about = {
         ],
       },
       {
-        company: "HIMTI UNAIR Company Profile Website",
+        company: "HIMTI UNAIR",
         timeframe: "February 2025 - Present",
         role: "Backend Developer",
         achievements: [
@@ -213,7 +213,7 @@ const about = {
     institutions: [
       {
         name: "University of Airlangga",
-        description: <>Studied computer science and software engineering.</>,
+        description: <>Studied informatics and software engineering.</>,
       },
       {
         name: "Self-Learning & Online Courses",

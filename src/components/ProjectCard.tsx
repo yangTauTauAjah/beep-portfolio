@@ -10,6 +10,8 @@ import {
   Text,
 } from "@once-ui-system/core";
 
+import styles from "./ProjectCard.module.scss";
+
 interface ProjectCardProps {
   href: string;
   priority?: boolean;
@@ -33,7 +35,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   source,
 }) => {
   return (
-    <Column fillWidth gap="m">
+    <Column fillWidth gap="m" className={styles.card}>
       <Carousel
         sizes="(max-width: 960px) 100vw, 960px"
         items={images.map((image) => ({
