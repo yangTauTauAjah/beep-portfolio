@@ -1,0 +1,42 @@
+---
+title: 'Blasters'
+summary: 'A Minecraft Bedrock add-on that adds six fully custom elemental blaster weapons with unique projectiles, charge mechanics, cooldowns, and visual effects.'
+images:
+- '/images/projects/blaster-addon/1.png'
+- '/images/projects/blaster-addon/2.png'
+tags: ['Minecraft', 'Typescript', 'Bedrock API', 'Game Development']
+---
+
+## Overview
+
+**Blasters** is a Minecraft Bedrock add-on built for the *Red Eagle* server that introduces a suite of six handcrafted energy weapons — the Ancient, Cobweb, Fiery, Frost, Future, and Gravity Blasters. Each weapon features its own firing modes, projectile behaviors, sound design, particle effects, and crafting recipes, turning standard combat into an arsenal-driven experience.
+
+The add-on pairs vanilla-side JSON (entities, items, animations, render controllers, recipes) with a TypeScript logic layer running on the Bedrock Script API. Weapon behavior — charge shots, hold-to-fire modes, cooldown tracking, and per-projectile impact effects — is handled entirely in script, while a Regolith + esbuild pipeline compiles the Deno-based source into a distributable `.mcaddon`.
+
+## Key Features
+
+- **Six Unique Blasters**: Every blaster has a distinct identity — Frost stacks hits into a freeze, Fiery ignites and explodes, Cobweb traps targets in webs, Ancient delivers a charged blast, and more.
+- **Dual Firing Modes**: Primary shots on left-click and secondary hold-to-use abilities (rapid-fire beams, flame cones, charge-ups) driven by item use events.
+- **Smart Cooldown System**: Per-weapon cooldown state stored on entities with live on-screen cooldown feedback for the player.
+- **Custom Projectiles & Effects**: Purpose-built projectile entities with unique models, beam and charge particles, and per-weapon shoot/hit/ability sound cues.
+- **First-Person Visuals**: Attachable models and animation controllers so each blaster renders correctly in-hand with firing animations.
+- **In-Game Guidebook**: A structure-based guidebook item given on first spawn, explaining every weapon and its abilities in-game.
+- **Craftable Progression**: Dedicated recipes for each blaster so players earn their arsenal through survival gameplay.
+- **Streamlined Build Pipeline**: Regolith configuration with esbuild-powered TypeScript bundling and a custom `.mcaddon` packaging filter for one-command builds.
+
+![Blaster Arsenal](/images/projects/blasters/arsenal.png)
+*All six blasters with custom in-hand models*
+
+![Projectile Effects](/images/projects/blasters/projectile-effects.png)
+*Elemental projectiles with unique particles and impact behavior*
+
+![Charge Attack](/images/projects/blasters/charge-attack.png)
+*Ancient Blaster mid-charge before releasing its blast*
+
+## Challenges and Learnings
+
+- Bridging **JSON-driven behavior packs** with the **Bedrock Script API** — deciding what belongs in entity events versus TypeScript for maintainability.
+- Implementing **hold-to-fire weapon loops** using item use events, runnables, and careful unsubscribe handling to avoid leaked intervals.
+- Designing **cooldown state management** on entities with dynamic properties, including live UI feedback without spamming the action bar.
+- Making projectiles **feel** different — tuning knockback, explosion radii, status-effect stacking, and homing behavior per weapon.
+- Building a **reproducible toolchain** (Regolith + esbuild + Deno) that compiles TypeScript and packages a ready-to-install `.mcaddon`.

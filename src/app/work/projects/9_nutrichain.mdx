@@ -1,0 +1,63 @@
+---
+title: "NutriChain — AI Dietary Recommendation Expert System"
+publishedAt: "2026-10-15"
+summary: "A forward-chaining expert system that delivers personalized dietary recommendations, computing BMI, BMR, TDEE, and macronutrient targets from a multi-step health profile, with a live-editable rule base and full inference tracing. Built with React, TypeScript, and Tailwind CSS."
+images:
+  - "/images/projects/NutriChain/1.png"
+  - "/images/projects/NutriChain/2.png"
+  - "/images/projects/NutriChain/3.png"
+link: "https://nutri-chain-two.vercel.app/"
+source: "https://github.com/yangTauTauAjah/NutriChain"
+---
+
+## Overview
+
+NutriChain is a web-based expert system that generates personalized dietary recommendations using classical forward-chaining inference rather than a hardcoded decision tree. Users describe themselves through a guided multi-step form — body metrics, medical conditions, allergies, goals, and lifestyle habits — and the system derives a complete nutrition plan: BMI category, BMR, TDEE, calorie targets, macronutrient split in grams, an appropriate diet type (DASH, Low-GI, or Balanced), plus recommended and blacklisted food lists.
+
+What sets the project apart is that the intelligence lives in a data-driven rule base. Rules are stored as JSON (condition and action are serialized JavaScript expressions compiled at runtime), evaluated through a recognize–act cycle against a dedicated working-memory store, and prioritized by salience when multiple rules match. An admin panel allows the knowledge base to be edited, validated, and reset without touching the source code, and every run produces a step-by-step inference trace showing the conflict set and the rule fired at each iteration — making the expert system's reasoning fully inspectable.
+
+## Key Features
+
+- **Forward-Chaining Inference Engine**: Classic Match–Resolve–Act cycle that repeatedly selects the highest-salience rule from the conflict set until quiescence, with each iteration recorded in a trace log
+- **Derived Biometrics**: Rules compute BMI (and category), BMR via the Mifflin-St Jeor equation, TDEE using activity multipliers, and goal-adjusted calorie targets
+- **Medical Condition Handling**: Hypertension triggers a DASH diet with sodium limits; diabetes triggers a Low-GI diet with carbohydrate restrictions; comorbidity rules combine both
+- **Allergy & Diet-Style Blacklisting**: Nut, lactose, gluten, seafood, and egg allergies each blacklist matching foods; vegan, vegetarian, and pescatarian lifestyles exclude animal products accordingly
+- **Lifestyle-Aware Adjustments**: Exercise type, weekly training days, sleep hours, meal frequency, breakfast habits, and stress level all feed into protein boosts and tailored advice
+- **Multi-Step Wizard UI**: A four-step form with progress stepper, per-step validation, data persistence between steps, and a rich results page with color-coded badges and advice cards
+- **Inference Transparency**: The results view exposes the full forward-chaining trace — conflict sets, fired rules, salience values, and newly asserted facts — for educational inspection
+- **Admin Panel**: Password-gated (SHA-256 hashed) rule and fact-schema management with create/edit/delete, JSON validation, localStorage persistence, and reset-to-defaults
+- **Hot Rule Reload**: The engine re-reads the rule base on every inference run, so admin edits take effect immediately without a page reload
+
+## Technologies Used
+
+- **React 19**: Frontend library for the wizard, results view, and admin panel
+- **TypeScript**: End-to-end typing of the facts model, rules, and engine interfaces
+- **Vite**: Build tooling and fast development server
+- **Tailwind CSS 4**: Utility-first styling with custom design tokens
+- **HeroUI**: Accessible component primitives (cards, chips, tables, modals, selects)
+- **Lucide React**: Icon set for UI affordances
+- **Web Crypto API**: SHA-256 password hashing for the admin gate
+- **localStorage**: Persistence layer for user-edited rules, fact schemas, and credentials
+
+## System Architecture
+
+- **`engine/`**: The expert system core — `inferenceEngine.ts` (recognize–act loop), `workingMemory.ts` (fact store with array-merging assertion), `ruleLoader.ts` (JSON rule compilation with injected context variables), `knowledgeBase.ts`, `foods.ts`, and the shared `types.ts` fact model
+- **`components/`**: `ProgressStepper` plus `Step1`–`Step4` implementing the profile wizard and the results dashboard
+- **`admin/`**: `AdminPage` providing authenticated knowledge-base management at `#/admin`
+- **`rules.json` / `facts-schema.json`**: The data-driven knowledge base and its schema, editable at runtime
+
+## Challenges and Learnings
+
+Serializing rules as data was the central design challenge: condition and action strings had to be compiled safely into functions with knowledge-base constants (allergen food lists, activity multipliers) injected as closure parameters, all while keeping them editable and validatable from the admin UI. Implementing correct conflict resolution — salience-ordered selection with a fired-rule set to prevent loops — required careful study of classic production-system semantics. Balancing medical-diet strictness with reasonable defaults, and merging rather than overwriting food lists in working memory, were subtle correctness issues solved through the trace log, which proved invaluable for debugging the engine's reasoning.
+
+## Outcome
+
+NutriChain demonstrates that a complete, transparent expert system can run entirely in the browser with zero backend. The forward-chaining engine produces explainable, rule-by-rule dietary recommendations, and the live-editable knowledge base turns the app into a playground for experimenting with rule-based AI concepts — making it both a practical health tool prototype and an educational artifact.
+
+## Live Demo
+
+[View Live Project](https://nutri-chain-two.vercel.app/)
+
+## Source Code
+
+[GitHub Repository](https://github.com/yangTauTauAjah/NutriChain)

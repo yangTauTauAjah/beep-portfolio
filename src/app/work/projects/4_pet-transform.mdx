@@ -1,0 +1,40 @@
+---
+title: 'Pet Transform'
+summary: 'A Minecraft plugin that lets players collect, evolve, and transform their pets with unique abilities, cosmetics, and progression stages.'
+images:
+- '/images/projects/pet-transform/1.png'
+- '/images/projects/pet-transform/2.png'
+tags: ['Minecraft', 'Typescript', 'Bedrock API', 'Game Development']
+---
+
+## Overview
+
+**Pet Transform** is a Minecraft plugin built for the *Red Eagle* server that introduces a dynamic pet system where players can tame, level up, and transform their pets into powerful new forms. Each transformation unlocks new abilities, visual effects, and gameplay advantages — adding a fresh progression layer to the vanilla experience.
+
+The plugin was designed with performance and extensibility in mind, featuring a custom data persistence layer, a GUI-driven management system, and full configuration support so server owners can define their own transformation trees.
+
+## Key Features
+
+- **Pet Transformation System**: Pets evolve through multiple stages with distinct models, stats, and abilities.
+- **Custom Abilities**: Passive buffs and active skills triggered per transformation stage.
+- **In-Game GUI**: Intuitive inventory menus for viewing, selecting, and evolving pets.
+- **Data Persistence**: Player and pet data stored safely in MySQL/SQLite with automatic synchronization.
+- **Particle & Cosmetic Effects**: Visual feedback for evolutions, activations, and idle states.
+- **Fully Configurable**: YAML-based configuration allowing custom pets, transformation recipes, and drop tables.
+- **Performance Optimized**: Async database calls and event-driven logic to minimize server tick impact.
+
+![Pet Selection GUI](/images/projects/pet-transform/gui-selection.png)
+*Pet management menu in-game*
+
+![Transformation Effect](/images/projects/pet-transform/transformation-effect.png)
+*Pet mid-transformation with particle effects*
+
+![Evolution Tree](/images/projects/pet-transform/evolution-tree.png)
+*Custom evolution paths defined in config*
+
+## Challenges and Learnings
+
+- Designing a **stateful entity system** on top of Minecraft's entity model without leaking memory.
+- Building **async persistence layers** to keep the main thread tick-safe.
+- Structuring a plugin for **extensibility**, letting server owners add content without touching code.
+- Balancing **gameplay design** — making transformations rewarding without breaking server economy.

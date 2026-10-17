@@ -1,0 +1,68 @@
+---
+title: "Inisiasi 2025 - Student Assignment Submission Platform"
+publishedAt: "2026-10-15"
+summary: "A full-stack assignment collection platform built with Next.js 15, React 19, and Supabase for a university new-student orientation program. It pairs a public event landing site with an NIM-based authentication layer (one-time token activation, bcrypt, rolling JWT session cookies), a student submission portal with hardened file/link uploads, and an admin console with CRUD management, a filterable submissions browser, and a custom role-based test harness."
+images:
+  - "/images/projects/inisialisasi/1.png"
+  - "/images/projects/inisialisasi/2.png"
+  - "/images/projects/inisialisasi/3.png"
+link: "https://inisialisasi-2025-1.vercel.app/"
+source: "https://github.com/yangTauTauAjah/inisialisasi-2025-1"
+---
+
+## Overview
+
+Inisiasi 2025 is a web platform built to collect and manage assignments for a university new-student orientation program attended by hundreds of participants. The system serves three audiences from a single Next.js application: the general public (an event landing page with guidelines, outfit requirements, and assessment criteria), students (an assignment portal where they activate their accounts, browse tasks grouped by orientation day, and submit work via file upload or link), and organizers (an admin console with dashboard statistics, assignment/group management, a student roster, and a searchable submissions browser).
+
+The interesting engineering lives in the trust model. Rather than using Supabase Auth, the platform implements its own authentication layer: students are identified by their NIM (student ID), activate their account once with a distributed confirmation token, and set a bcrypt-hashed password. Sessions are JWTs signed with `jose` and stored in cookies — but they are never trusted as-is. A middleware running on every request verifies the token, re-checks the user's existence and admin flag against the database, re-issues a rolling session cookie, and injects a server-controlled `x-student-id` header that all API routes use for identity. Submission uploads are validated against a shared file-configuration module on both the client and the server (200KB limit, MIME whitelist), namespaced per-student in Supabase Storage, and rate-limited per IP.
+
+As the full-stack developer for this project, I was responsible for the entire system: the Supabase data model, the custom authentication and authorization layer, the middleware gateway, the student submission portal, the admin console, the API surface, and the role-based testing framework that verifies security boundaries across unauthenticated, student, and admin roles.
+
+## Tech Stack
+- **Next.js 15 (App Router)**: Route groups (`(landing)` vs `(app)`), API route handlers, and edge-style middleware on all paths
+- **React 19 + TypeScript (strict)**: Type-safe components, services, and API contracts across public, student, and admin surfaces
+- **Supabase**: Postgres (users, task groups, assignments, submissions) and Storage (uploaded files), accessed through both server and browser clients
+- **Tailwind CSS 4 + shadcn/ui + Radix UI**: Design system for the landing site and student portal
+- **Ant Design 5**: Admin console data tables, statistics, and form controls (with the official React 19 compatibility patch)
+- **jose + bcrypt**: JWT signing/verification and password hashing
+- **lucide-react**: Icon system for the student-facing UI
+- **Custom test runner**: ts-node-based role-activity test framework under `tests/`
+
+## Key Features
+
+### Authentication & Activation
+- **NIM-Based Identity**: Students log in with their student ID number — no email registration step that could leak or complicate bulk onboarding
+- **One-Time Token Activation**: First-time users redeem a distributed confirmation token and set a password (minimum 8 characters); already-activated accounts are rejected with a clear message rather than a generic failure
+- **Separate Admin Login**: Admins authenticate through a distinct endpoint with an `is_admin` database flag, never a client-side role claim
+- **Rolling Sessions**: Every request re-verifies the JWT against the database and re-issues a fresh 3-day cookie, so revoked or stale tokens stop working immediately
+
+### Student Assignment Portal
+- **Day-Grouped Navigation**: Assignments are organized into task groups (orientation days) rendered as a collapsible sidebar with a mobile dropdown equivalent
+- **Localized Deadlines**: Due dates render in `id-ID` locale with the `Asia/Jakarta` timezone, plus overdue styling so students immediately see late tasks
+- **Typed Submission Forms**: Link-type assignments show a URL field; file-type assignments show a file picker with client-side size/type validation — driven by the same config the server enforces
+- **Submission History**: Students see their own past submissions per assignment with download links, filtered server-side to their own user ID
+
+### Submission Hardening
+- **Shared Validation Config**: A single `FILE_UPLOAD_CONFIG` module defines the 200KB limit and allowed MIME types, consumed by both the upload form and the API route — no drift between client and server rules
+- **Server-Side Enforcement**: The API re-validates content type, file size, assignment existence, assignment type (`is_link`), and student identity before anything touches storage
+- **Per-IP Rate Limiting**: An in-memory sliding window caps submissions at 5 per 60 seconds per IP, with periodic cleanup of stale entries
+- **Namespaced Storage**: Files upload to `{nim}/{timestamp}_{sanitized_filename}`, keeping every student's uploads isolated
+
+### Admin Console
+- **Dashboard Overview**: Live counts of total students, assignments, and submissions
+- **Assignment Management**: Full CRUD for assignments (name, description, due date, link-vs-file type, group assignment, active toggle) and task groups, with server-side validation of required fields and date formats
+- **Submissions Browser**: Ant Design table with server-side pagination, filters by group/assignment/submission type, and search by submission name or student NIM, plus per-row download and view actions
+- **Protected by Construction**: All `/admin` pages and mutating data API endpoints are gated in middleware — an admin-less session is redirected before any page code runs
+
+### Role-Based Testing Framework
+- **Three Role Suites**: Unauthenticated (6 activities), regular student (11), and admin (16), with inheritance so each role suite includes everything below it
+- **Boundary Assertions**: The harness verifies negative cases — students cannot reach admin routes, unauthenticated users cannot submit — not just happy paths
+- **Runnable Scripts**: `npm run test`, plus per-role commands (`test:unauthenticated`, `test:student`, `test:admin`) and activity listing
+
+## Live Demo
+
+[View Live Project](https://inisialisasi-2025-1.vercel.app/)
+
+## Source Code
+
+[GitHub Repository](https://github.com/yangTauTauAjah/inisialisasi-2025-1)

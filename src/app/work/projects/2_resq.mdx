@@ -1,0 +1,72 @@
+---
+title: "ResQ — Real-Time Disaster Monitoring & WhatsApp Alert Platform for Indonesia"
+publishedAt: "2026-10-15"
+summary: "A polyglot disaster-mitigation platform that scrapes BMKG's real-time earthquake feed from a Cloudflare Worker on a cron trigger, classifies and persists events in a Laravel 12 core, computes location-based zone risk with a sliding-window clustering algorithm, and pushes warnings to residents over WhatsApp through a self-hosted Baileys gateway — with an AI mitigation assistant, a Leaflet disaster map, and a circuit-breaker-protected external API layer on top. Deployed on Vercel's PHP runtime with Redis-backed queues and a Kubernetes path."
+images:
+  - "/images/projects/resq-web/1.png"
+  - "/images/projects/resq-web/2.png"
+  - "/images/projects/resq-web/3.png"
+link: "https://resq-blue.vercel.app/"
+---
+
+## Overview
+
+ResQ is an end-to-end disaster monitoring and mitigation platform built for Indonesia, one of the most seismically active countries in the world. Every few minutes, a Cloudflare Worker scrapes BMKG's (the Indonesian meteorological agency) real-time earthquake page, parses the event table with a streaming `HTMLRewriter`, and — only when a genuinely new earthquake is detected — reports it to the Laravel core over an API-key-protected webhook. The core owns everything after ingestion: severity classification from magnitude, persistence to PostgreSQL, and fan-out to WhatsApp notifications for users living near the epicenter.
+
+On top of that data foundation sit three product surfaces. A location-based risk engine groups nearby disasters into time clusters with a sliding-window algorithm and derives a zone status (safe / warning / danger) with tailored mitigation recommendations. An AI assistant — a Fireworks-hosted MiniMax-M3 model tuned to speak casual Indonesian like a WhatsApp friend — answers mitigation questions, optionally grounded in the user's current zone status. And a dark-themed Leaflet map renders every active disaster with marker clustering, geolocation, and Google Maps styled tiles when an API key is present (OSM fallback when not).
+
+The delivery side is WhatsApp-first on purpose: it is the channel Indonesians actually read. A standalone Node.js service built on the Baileys library keeps a personal WhatsApp session alive behind an HTTP API, and the Laravel app pushes alerts through it via Redis-backed queued jobs with exponential-backoff retries, rate limiting, per-user notification logs, and per-location preferences.
+
+As the full-stack developer for this project, I owned the entire system: the ingestion worker, the Laravel core and its data model, the resilient external-API framework, the risk-analysis engine, the WhatsApp gateway, the Blade/Alpine.js frontend, and the Vercel + Kubernetes deployment paths.
+
+## Tech Stack
+- **Laravel 12 (PHP 8.2)**: Monolith core — routing, Eloquent, queues, scheduler, Sanctum API auth
+- **PostgreSQL**: Primary datastore with geospatial trig-based radius queries
+- **Redis (predis)**: Queue backend for notification and AI chat jobs
+- **Cloudflare Workers + KV + Cron Triggers**: Edge scraper with `HTMLRewriter` streaming HTML parsing
+- **TypeScript**: Worker source, typed end to end against generated runtime types
+- **Node.js + Baileys**: Self-hosted WhatsApp Web gateway with QR auth and auto-reconnect
+- **Fireworks AI (MiniMax-M3)**: Chat completions for the mitigation assistant
+- **Blade + Alpine.js + Tailwind CSS**: Server-rendered UI with reactive islands
+- **Leaflet + markercluster + Google Maps API**: Disaster map with styled tiles, clustering, and geocoding
+- **Laravel Breeze + Socialite**: Email/password and OAuth authentication
+- **GSAP + Lenis + marked + DOMPurify**: Landing animations, smooth scroll, and safe Markdown rendering
+- **Vercel (vercel-php) / Kubernetes**: Dual deployment targets
+
+## Key Features
+
+### Real-Time Disaster Ingestion
+- **Cron-Driven Scraping**: A Cloudflare Worker fetches BMKG's real-time earthquake page on a schedule and parses datetime, magnitude, depth, and coordinates (including LS/LU and BT/BB hemisphere signs) from the HTML table
+- **Edge-Side Dedup**: A single KV key holds the last-seen earthquake fingerprint; repeat cron ticks no-op, and the key is only updated after Laravel accepts the report so failed POSTs retry on the next tick
+- **Automatic Severity Classification**: The `Disaster` model classifies low/medium/high/critical from magnitude on create, keeping business rules in the core rather than the scraper
+
+### Location-Based Risk Analysis
+- **Zone Statuses**: Safe (\<5), warning (5–9), and danger (10+) derived from the largest time-proximate disaster cluster within a configurable radius (default 50 km, 30-day proximity window)
+- **Sliding-Window Clustering**: Disasters are sorted by date and grouped into clusters; the max cluster size — not the raw count — drives the status, so a single bursty week outweighs months of quiet activity
+- **Saved Locations**: Users register home, office, and other locations, each with its own notification radius and enable toggle
+- **Recommendations**: Every analysis returns mitigation advice tailored to the zone status and the disaster types present
+
+### WhatsApp Alert Pipeline
+- **Self-Hosted Gateway**: A Baileys-based Node service exposes `/send`, `/broadcast`, and `/status` over HTTP with QR-code session auth and automatic reconnection
+- **Queued Delivery**: Notifications dispatch as Redis-backed jobs with 3-attempt exponential backoff (0.5s → 1s → 2s) and a 20-message-per-minute rate cap
+- **Auditable**: Every send is recorded in `NotificationLog` with sent/failed state, retry counts, and error details
+- **Scheduled Sweeps**: `resq:check-location-risk --notify` iterates all opted-in user locations and alerts anyone whose zone has entered warning or danger
+
+### AI Mitigation Assistant
+- **Casual Indonesian Persona**: A system prompt tuned for WhatsApp-style, markdown-free, plain-paragraph advice — calm but firm during warnings
+- **Location-Aware Chat**: Conversations inject the user's live zone analysis so answers reference their actual risk
+- **Conversation History**: Threads persist with a 10-message rolling context, plus a chat-history browser with search, stats, export, soft-delete, and restore
+- **Resilience by Construction**: Every model call passes through the circuit breaker, response cache, and fallback manager
+
+### Disaster Map
+- **Clustered Markers**: Leaflet with markercluster renders all active disasters from a GeoJSON feed with severity-colored markers
+- **Graceful Theming**: Google Maps styled tiles when an API key is configured, automatic OSM light-theme fallback when not — with the key injected server-side rather than committed
+- **Live Stats**: Aggregate counts by type and severity power the dashboard widgets
+
+### Preparedness Content
+- **Articles & Guides**: Categorized, Markdown-authored educational content rendered safely with `marked` + `DOMPurify`
+- **Zone-Status Widget**: A dashboard Alpine.js component that requests browser geolocation and renders the live zone verdict with color-coded indicators
+
+## Live Demo
+
+[View Live Project](https://resq-blue.vercel.app/)

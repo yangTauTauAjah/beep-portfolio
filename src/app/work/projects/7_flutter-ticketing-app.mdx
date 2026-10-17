@@ -1,0 +1,53 @@
+---
+title: "Flutter Starter — Production-Ready App Boilerplate"
+publishedAt: "2026-10-15"
+summary: "A production-grade Flutter boilerplate built on feature-first architecture, Riverpod state management, type-safe routing, environment flavors, and an automated CI/CD pipeline — designed to collapse weeks of project scaffolding into a single clone, so new apps start with theming, localization, networking, auth scaffolding, and testing already solved."
+images:
+  - "/images/projects/flutter-ticketing-app/1.png"
+  - "/images/projects/flutter-ticketing-app/2.png"
+  - "/images/projects/flutter-ticketing-app/3.png"
+  - "/images/projects/flutter-ticketing-app/4.png"
+---
+
+## Overview
+
+Flutter Starter is a production-ready boilerplate that answers a recurring problem: every new Flutter app begins with the same two weeks of plumbing — folder structure, state management, routing, theming, localization, API clients, error handling, flavors, and CI — none of which differentiates the product. This starter packages all of it behind a clean, feature-first architecture so a new project starts at the interesting part.
+
+The architecture organizes code by feature rather than layer, with each feature owning its own models, providers, widgets, and routes. Shared concerns (design system, networking, storage, configuration) live in explicitly separated cores. State management runs on Riverpod with code generation for compile-safe providers, navigation uses go_router with declarative auth guards and deep-link support, and immutable models come from freezed + json_serializable. A three-flavor setup (dev/staging/prod) keeps environments isolated, and a GitHub Actions pipeline runs analysis, tests, and builds on every push.
+
+As the developer of this boilerplate, I owned every layer: the architectural decisions, the design system, the generated-code pipeline, the CI/CD automation, and the documentation that makes the template actually usable by others.
+
+## Tech Stack
+- **Flutter 3.x + Dart 3 (strict)**: Null-safe, strictly analyzed codebase with `very_good_analysis` lints
+- **Riverpod (codegen)**: State management and dependency injection
+- **go_router**: Declarative, type-safe navigation with guards
+- **freezed + json_serializable**: Immutable models and typed JSON serialization
+- **Dio + Pretty Interceptors**: HTTP client with token refresh and error mapping
+- **flutter_secure_storage + shared_preferences**: Credential and preference persistence
+- **flutter_flavorizr**: Flavor and environment bootstrapping
+- **GitHub Actions**: Analysis, testing, and build automation
+- **mocktail + golden_toolkit**: Unit, widget, and visual regression testing
+
+## Key Features
+
+### Architecture & Structure
+- **Feature-First Modules**: Each feature is a self-contained directory — drop a feature in, wire its router, and it works; delete it and nothing else breaks
+- **Strict Layer Boundaries**: UI never touches data sources directly; everything flows through repositories and providers
+- **Compile-Time Safety**: Code generation for providers and models means refactors surface as build errors, not runtime crashes
+
+### Developer Experience
+- **One-Command Bootstrap**: Clone, run `flutter pub run build_runner build`, and the app runs on any device with the dev flavor
+- **Instant Theming**: Light, dark, and system modes with Material 3 dynamic color support
+- **Ready-Made Screens**: Login, onboarding, home, settings, and error screens scaffolded with the design system
+- **Utility Belt**: Formatters, validators, extensions, loaders, and a responsive layout builder included from day one
+
+### Production Readiness
+- **Auth Scaffolding**: Token storage, refresh flows, route guards, and logout handling already wired
+- **Typed Error Handling**: A sealed `Failure` hierarchy maps network, parsing, and unexpected errors into actionable UI states
+- **Flavored Builds**: dev/staging/prod icons, names, and endpoints generated automatically
+- **CI Pipeline**: Every push is analyzed, tested, and built for both platforms before merge
+
+## Quality Metrics
+- **Zero analysis issues** under strict lints across the entire codebase
+- **High starting coverage**: every core system ships with unit or widget tests, and CI fails on regression
+- **Compile-safe refactors**: codegen and sealed types turn common runtime failures into build errors

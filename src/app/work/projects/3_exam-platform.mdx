@@ -1,0 +1,73 @@
+---
+title: "Examify - Secure Student Exam & Quiz Platform"
+publishedAt: "2026-10-15"
+summary: "A full-stack exam platform built with Next.js 16, React 19, and Supabase that pairs a rich-media WYSIWYG question editor (Markdown, images, audio, and furigana annotations) with a refresh-proof, server-authoritative anti-cheating timer. Exam content lives as JSON files in storage while metadata stays in Postgres, and LocalStorage caching lets students survive refreshes and crashes without losing answers or time."
+images:
+  - "/images/projects/exam/1.png"
+  - "/images/projects/exam/2.png"
+  - "/images/projects/exam/3.png"
+link: "https://exam-nine-henna.vercel.app/"
+---
+
+## Overview
+
+Examify is a secure quiz and exam application for students, designed around three ideas: exams should be rich documents (not plain text forms), time should be enforced by the server (not the browser), and a student should never lose their work because they refreshed the page or their connection dropped.
+
+On the admin side, the platform provides a full WYSIWYG question editor built on Tiptap that serializes to Markdown. Questions can embed resizable images, inline audio players, and Japanese furigana (`ruby`) annotations anywhere in the text — making it suitable for listening tests and language exams, not just multiple-choice trivia. Questions are drag-and-drop reorderable, support per-question points, option shuffling, and multiple types (multiple choice, free text, boolean).
+
+On the student side, the platform implements a strict anti-cheating model. Clicking "Start" creates an `ExamSession` row whose `start` timestamp is immutable and server-controlled; the visible countdown is always recomputed as `(actual_start_time + duration) - now`, so refreshing, closing the tab, or tampering with client state cannot reset the clock. Every answer is cached to LocalStorage the moment it's chosen, and the server re-validates submission timing with a small latency grace period before scoring.
+
+As the full-stack developer for this project, I was responsible for the entire system: the Supabase data model, the hybrid database-plus-storage content architecture, the admin editor and exam management UI, the student exam portal, the anti-cheating session layer, and the server-side scoring and manual grading flows.
+
+## Techn Stack
+- **Next.js 16 (App Router)**: Server components, route handlers, and `proxy.ts` middleware for session refresh
+- **React 19 + TypeScript (strict)**: Type-safe component architecture across admin and student surfaces
+- **Supabase**: Postgres (dedicated `exam` schema with RLS), Storage (signed-URL question files and media), and Auth (email/password with email verification)
+- **Tiptap 3 + tiptap-markdown**: WYSIWYG editing that round-trips to Markdown, with custom audio and ruby extensions
+- **Tailwind CSS 4 + shadcn/ui + Radix UI**: Design system with automatic dark mode via `next-themes`
+- **dnd-kit**: Accessible drag-and-drop for question reordering and folder tree manipulation
+- **qrcode.react**: Per-exam QR codes for shareable short links
+- **react-markdown + marked**: Student-side rendering of question content
+
+## Key Features
+
+### Rich-Media Question Editor
+- **WYSIWYG, Not Raw Markdown**: Admins author questions in a Tiptap editor with live formatting; Markdown is an implementation detail, surfaced only when wanted
+- **Inline Media Anywhere**: Resizable images and inline audio players can be embedded at any position in the question text — including inside a sentence
+- **Furigana Annotations**: A custom `ruby` node annotates kanji with phonetic readings for Japanese exams, rendered inline and adjustable in size
+- **Flexible Question Model**: Multiple choice, free text, and boolean types; per-question points, per-question option shuffling, and exam-level question randomization
+- **Reorder by Drag**: dnd-kit-powered sortable list with a drag overlay for repositioning questions
+
+### Exam Management
+- **Full CRUD**: Create, read, update, and delete exams with title, banner image, open period (start/end), duration, passing score, and active toggle
+- **Folder Organization**: A materialized-path folder hierarchy (`/Math/Midterms/`) with a tree view supporting drag-and-drop moves of exams and entire folder subtrees
+- **Shareable Links**: Every exam gets a short URL segment and a generated QR code for distribution
+
+### Student Exam Portal
+- **Access Control**: Exams are only startable within their open period, and completed or expired sessions are denied a retake
+- **Server-Authoritative Timer**: The countdown derives from the immutable database start time — refresh-resistant by construction
+- **Escalating Timer UI**: Visual warning states at 10 minutes and crisis styling with pulse at 5 minutes remaining
+- **Answer Resilience**: Every selection is written to LocalStorage immediately; on return, cached answers repopulate and the countdown resumes correctly
+- **Reading Comfort Controls**: Adjustable main-text and phonetic-text font sizes during the exam
+
+### Grading & Results
+- **Automatic Scoring**: Objective questions are scored server-side at submission time — the client never computes its own grade
+- **Manual Grading Workspace**: Free-text answers route to an admin grading view showing each question, the student's answer, and per-question score inputs
+- **Results View**: Students see their outcome after submission; admins can browse all sessions per exam
+
+## Achievements
+
+### Quality Metrics
+- **Server-authoritative integrity**: timing validation, access control, and scoring all live behind the API route — the client is treated as untrusted
+- **Private-by-default content**: question files are only reachable through 60-second signed URLs
+
+### Impact and Results
+
+- **Cheating-resistant by construction**: server-side start times and validation make timer manipulation and out-of-window submissions structurally impossible, not just discouraged
+- **Media-rich assessments**: listening comprehension, annotated Japanese reading, and image-based questions are first-class citizens rather than workarounds
+- **Student-friendly resilience**: refreshes and accidents no longer cost students their exam state
+- **Operator-friendly administration**: folder organization, QR sharing, and a manual grading workspace cover the full exam lifecycle from authoring to results
+
+## Live Demo
+
+[View Live Project](https://exam-nine-henna.vercel.app/)

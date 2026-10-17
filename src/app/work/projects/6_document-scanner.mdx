@@ -1,0 +1,92 @@
+---
+title: "Smart Document & Receipt Extraction Pipeline"
+publishedAt: "2026-10-15"
+summary: "A full-stack AI pipeline built with Next.js 16 and React 19 that turns photos of receipts and invoices into structured, exportable data. Users define their own extraction fields at request time, a vision LLM returns schema-validated JSON, and results are reviewed side-by-side before exporting to JSON, CSV, or Google Sheets."
+images:
+  - "/images/projects/document-scanner/1.png"
+  - "/images/projects/document-scanner/2.png"
+  - "/images/projects/document-scanner/3.png"
+link: "https://document-scanner-gamma.vercel.app/"
+source: "https://github.com/yourusername/document-scanner"
+---
+
+## Overview
+
+Smart Document & Receipt Extraction Pipeline is a full-stack web application that converts photos of receipts and invoices into structured, exportable data. Instead of forcing documents through a fixed "receipt template," the app lets the user describe the fields they want extracted — for one document or a hundred — and validates the model's output against a schema built on the fly from those definitions.
+
+The application addresses a real gap between raw OCR and usable data: off-the-shelf OCR extracts text but doesn't understand structure, doesn't know that "Total" should equal "Subtotal + Tax," and can't adapt to one-off document types like insurance forms or delivery slips. This project solves that with a user-defined extraction schema, a strict JSON contract enforced on both the LLM and the server, math-integrity cross-checks, and a review workflow that keeps a human in the loop before anything is exported.
+
+As the full-stack developer for this project, I was responsible for the entire system: the Next.js App Router backend, the React review UI, the LLM integration layer, schema validation, Google OAuth, and the export pipeline.
+
+### Tech Stack
+- **Next.js 16**: App Router framework with `proxy.ts` middleware for rate limiting
+- **React 19 + HeroUI v3**: Component architecture with Tailwind CSS v4 for styling
+- **TypeScript (strict)**: End-to-end type safety, including a hand-written ambient declaration for the untyped Google Identity Services browser API
+- **OpenRouter SDK**: Vision LLM access (`google/gemma-4-26b-a4b-it:free`) with structured JSON output
+- **Zod v4**: Schema builder driving the LLM contract and response validation
+- **Google Sheets API v4**: Direct export from the browser with an OAuth access token
+- **Vitest**: Unit testing for the framework-independent core
+- **React Context + localStorage**: Settings and extraction history with zero database
+
+## Key Features
+
+### User-Defined Extraction Schema
+- **Simple Mode**: Quick tag-style input for common cases (e.g., "vendor total date")
+- **Advanced Mode**: Per-field builder with name, type (text/number/date), and required flags
+- **No Fixed Templates**: The backend has no baked-in "receipt" or "invoice" schema — every request builds its own
+
+### Validated AI Pipeline
+- **Strict JSON Contract**: The LLM is constrained by a JSON Schema generated from the user's field definitions
+- **Double Validation**: The model's response is parsed and re-validated server-side with the same Zod schema before reaching the UI
+- **Math-Integrity Checks**: Extracted numeric fields (subtotal, tax, total, line items) are cross-checked against each other, and mismatches are surfaced in the review UI rather than silently trusted
+
+### Review & Export Workflow
+- **Side-by-Side Review**: Source image next to an editable results table before anything is exported
+- **Multi-Document Support**: Batch upload with a gallery, extracting records across several images
+- **Export Targets**: JSON, CSV, or direct append to a Google Sheet through a real OAuth consent popup
+- **Extraction History**: Previous runs persisted client-side via localStorage
+
+### Zero-Database Architecture
+- **BYOK Credentials**: The OpenRouter key and Google token live only in the browser, sent per-request via headers
+- **Stateless Server**: One Next.js server, one API route, no session store, no managed database
+- **Fair Rate Limiting**: Requests using the shared server key are rate-limited per IP; requests with a user's own key skip the limiter entirely
+
+## Challenges and Solutions
+
+### Trusting LLM Output
+- **Challenge**: LLMs freely hallucinate field values and return inconsistent JSON shapes
+- **Solution**: Enforced the user's field schema twice — as a strict structured-output contract on the request, and as a Zod parse on the response — so malformed data never reaches the UI
+
+### Schema Flexibility vs. Type Safety
+- **Challenge**: Supporting arbitrary user-defined fields while keeping a strictly-typed TypeScript codebase
+- **Solution**: A small set of shared types (`FieldDef`, `ExtractionRecord`, `ExtractionResult`) flows from UI through API to LLM contract, with the record shape typed as a validated `Record<string, string | number | null>`
+
+### OAuth Without a Backend Secret
+- **Challenge**: Google's standard Authorization Code flow needs a server-held secret and redirect route, which conflicts with the zero-database design
+- **Solution**: Used Google Identity Services' client-side token client with token expiry tracking, keeping the entire auth flow in the browser
+
+### Protecting a Shared API Key
+- **Challenge**: A server-side OpenRouter key is a shared, abusable resource
+- **Solution**: A per-IP token bucket in middleware for shared-key requests, bypassed entirely for BYOK requests that spend no shared quota
+
+## Technical Achievements
+
+### Quality Metrics
+- **58 automated tests across 10 files, all passing**: schema construction, math-integrity validation, CSV/Sheets export, OpenRouter client, rate limiter, and prompt builder
+- **Zero TypeScript errors** (`tsc --noEmit`), including a hand-written ambient type declaration for the untyped Google Identity Services API
+- **Minimal deployment surface**: one Next.js server with a single API route, deployable anywhere without managed infrastructure
+
+### Impact and Results
+
+- **From photo to spreadsheet in one pass**: documents move through upload, extraction, review, and export without manual retyping
+- **Adaptable beyond receipts**: any document type works — the schema is defined per request, not hardcoded
+- **Human-in-the-loop safety**: math mismatches and suspicious extractions are surfaced for review instead of silently exported
+- **Privacy-friendly design**: user credentials never leave the browser except in direct per-request calls to OpenRouter and Google
+
+## Live Demo
+
+[View Live Project](https://document-scanner-gamma.vercel.app/)
+
+## Source Code
+
+[GitHub Repository](https://github.com/yourusername/document-scanner)
